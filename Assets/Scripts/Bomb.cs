@@ -39,12 +39,15 @@ public class Bomb : MonoBehaviour {
     void ExplosiveForce() {
         Vector3 explosionPos = transform.position;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, radius);
+
+        List<GameObject> hitPrev = new List<GameObject>();
         foreach (Collider2D hit in colliders)
         {
             Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
 
-            if (rb != null)
+            if (rb != null && !hitPrev.Contains(hit.gameObject))
                 Rigidbody2DExtension.AddExplosionForce(rb, power, explosionPos, radius, uplift);
+            hitPrev.Add(hit.gameObject);
         }
     }
 
@@ -52,12 +55,14 @@ public class Bomb : MonoBehaviour {
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, damageRadius, whoIsEffected);
 
+        List<GameObject> hitPrev = new List<GameObject>();
         for (int i = 0; i < colliders.Length; i++)
         {
-            if (colliders[i].gameObject != gameObject)
+            if (colliders[i].gameObject != gameObject && !hitPrev.Contains(colliders[i].gameObject))
             {
                colliders[i].gameObject.SendMessage("Hit");
             }
+            hitPrev.Add(colliders[i].gameObject);
         }
     }
 
