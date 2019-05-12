@@ -4,26 +4,40 @@ using UnityEngine;
 
 public class Bomb : MonoBehaviour {
 
-  public float radius = 100;
-  public float power = 100;
-  public float uplift = 100;
+    public float radius = 2;
+    public float power = 300;
+    public float uplift = 0.1f;
 
-  void Start() {
-    StartCoroutine(Explode());
-  }
+    public float damageRadius = 2;
+    public LayerMask whoIsEffected;
 
-  IEnumerator Explode() {
+    static float shakeDuration = 0f;
 
-    yield return new WaitForSeconds(3);
-    GetComponent<Animator>().SetTrigger("Explode");
-    GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
-    ExplosiveForce();
-    yield return new WaitForSeconds(0.7f);
-    Destroy(gameObject);
-  }
+    private float shakeMagnitude = 0.5f;
 
-  void ExplosiveForce() {
-    Vector3 explosionPos = transform.position;
+    private float dampingSpeed = 1f;
+
+    Vector3 cameraInitialPosition;
+
+    void Start() {
+        cameraInitialPosition = Camera.main.transform.localPosition;
+        StartCoroutine(Explode());
+    }
+
+    IEnumerator Explode() {
+
+        yield return new WaitForSeconds(3);
+        GetComponent<Animator>().SetTrigger("Explode");
+        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+        ExplosiveForce();
+        shakeDuration = 0.2f;
+        CheckDamage();
+        yield return new WaitForSeconds(0.7f);
+        Destroy(gameObject);
+    }
+
+    void ExplosiveForce() {
+        Vector3 explosionPos = transform.position;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, radius);
         foreach (Collider2D hit in colliders)
         {
@@ -32,27 +46,34 @@ public class Bomb : MonoBehaviour {
             if (rb != null)
                 Rigidbody2DExtension.AddExplosionForce(rb, power, explosionPos, radius, uplift);
         }
-  }
+    }
+
+    void CheckDamage()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, damageRadius, whoIsEffected);
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].gameObject != gameObject)
+            {
+               colliders[i].gameObject.SendMessage("Hit");
+            }
+        }
+    }
+
+    void Update()
+    {
+        if (shakeDuration > 0)
+        {
+            Camera.main.transform.localPosition = cameraInitialPosition + Random.insideUnitSphere * shakeMagnitude;
+
+            shakeDuration -= Time.deltaTime * dampingSpeed;
+        }
+        else
+        {
+            shakeDuration = 0f;
+            Camera.main.transform.localPosition = cameraInitialPosition;
+        }
+    }
 }
 
-public static class Rigidbody2DExtension
-{
-    public static void AddExplosionForce(this Rigidbody2D body, float explosionForce, Vector3 explosionPosition, float explosionRadius)
-    {
-        var dir = (body.transform.position - explosionPosition);
-        float wearoff = 1 - (dir.magnitude / explosionRadius);
-        body.AddForce(dir.normalized * explosionForce * wearoff);
-    }
- 
-    public static void AddExplosionForce(this Rigidbody2D body, float explosionForce, Vector3 explosionPosition, float explosionRadius, float upliftModifier)
-    {
-        var dir = (body.transform.position - explosionPosition);
-        float wearoff = 1 - (dir.magnitude / explosionRadius);
-        Vector3 baseForce = dir.normalized * explosionForce * wearoff;
-        body.AddForce(baseForce);
- 
-        float upliftWearoff = 1 - upliftModifier / explosionRadius;
-        Vector3 upliftForce = Vector2.up * explosionForce * upliftWearoff;
-        body.AddForce(upliftForce);
-    }
-}

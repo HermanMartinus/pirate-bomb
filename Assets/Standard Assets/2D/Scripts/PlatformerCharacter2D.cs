@@ -21,6 +21,7 @@ namespace UnityStandardAssets._2D
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 
         public GameObject particlePrefab;
+        bool canLand = true;
 
         private void Awake()
         {
@@ -32,25 +33,61 @@ namespace UnityStandardAssets._2D
             // Time.timeScale = 0.2f;
         }
 
-
+        bool prevGrounded = false;
         private void FixedUpdate()
         {
             m_Grounded = false;
-
+        
             // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
             // This can be done using layers instead but Sample Assets will not overwrite your project settings.
             Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
+
             for (int i = 0; i < colliders.Length; i++)
             {
                 if (colliders[i].gameObject != gameObject)
+                {
                     m_Grounded = true;
+                }
             }
+
             m_Anim.SetBool("Ground", m_Grounded);
 
             // Set the vertical animation
             m_Anim.SetFloat("vSpeed", m_Rigidbody2D.velocity.y);
+
+            if(m_Grounded && !prevGrounded)
+            {
+                // Landed
+
+            } 
+            else if(!m_Grounded && prevGrounded)
+            {
+                // Jumped
+                canLand = true;
+            }
+            prevGrounded = m_Grounded;
         }
 
+        void OnCollisionEnter2D(Collision2D col)
+        {
+            if(col.gameObject.layer == 11)
+            {
+                if (canLand)
+                {
+                    GameObject jumpParticles = Instantiate(particlePrefab);
+                    jumpParticles.transform.position = new Vector2(col.contacts[0].point.x, col.contacts[0].point.y + 0.1f);
+                    jumpParticles.GetComponent<Animator>().SetTrigger("Land");
+
+                    canLand = false;
+                }
+                else
+                {
+                    GameObject jumpParticles = Instantiate(particlePrefab);
+                    jumpParticles.transform.position = new Vector2(col.contacts[0].point.x, col.contacts[0].point.y + 0.1f);
+                    jumpParticles.GetComponent<Animator>().SetTrigger("Run");
+                }
+            }
+        }
 
         public void Move(float move, bool crouch, bool jump)
         {
@@ -101,11 +138,10 @@ namespace UnityStandardAssets._2D
                 m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 
                 GameObject jumpParticles = Instantiate(particlePrefab);
-                jumpParticles.transform.position = new Vector2(transform.position.x, transform.position.y-0.4f);
+                jumpParticles.transform.position = new Vector2(transform.position.x, transform.position.y-0.26f);
                 jumpParticles.GetComponent<Animator>().SetTrigger("Jump");
             }
         }
-
 
         private void Flip()
         {
@@ -116,6 +152,11 @@ namespace UnityStandardAssets._2D
             Vector3 theScale = transform.localScale;
             theScale.x *= -1;
             transform.localScale = theScale;
+        }
+
+        public void Hit()
+        {
+            m_Anim.SetTrigger("Hit");
         }
     }
 }

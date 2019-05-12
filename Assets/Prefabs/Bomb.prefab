@@ -98,6 +98,10 @@ MonoBehaviour:
   radius: 2
   power: 300
   uplift: 0.1
+  damageRadius: 1
+  whoIsEffected:
+    serializedVersion: 2
+    m_Bits: 5120
 --- !u!95 &4931028198571948126
 Animator:
   serializedVersion: 3
