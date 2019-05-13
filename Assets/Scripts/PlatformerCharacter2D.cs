@@ -21,7 +21,9 @@ namespace UnityStandardAssets._2D
         private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 
         public bool isPlayer = false;
+        public float hitForce = 300;
 
+        bool isHit = false;
         public GameObject particlePrefab;
         bool canLand = true;
 
@@ -97,6 +99,7 @@ namespace UnityStandardAssets._2D
 
         public void Move(float move, bool jump)
         {
+            if (isHit) return;
 
             //only control the player if grounded or airControl is turned on
             if (m_Grounded || m_AirControl)
@@ -149,9 +152,15 @@ namespace UnityStandardAssets._2D
         public void Hit()
         {
             m_Anim.SetTrigger("Hit");
- 
+            isHit = true;
+            Invoke("ResetHit", 0.2f);
             if(isPlayer)
                 Lives.manager.LoseLife();
+        }
+
+        void ResetHit()
+        {
+            isHit = false;
         }
 
         public void Die()
@@ -180,10 +189,16 @@ namespace UnityStandardAssets._2D
         {
             Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 0.9f);
 
+            bool hit = false;
             for (int i = 0; i < colliders.Length; i++)
             {
-                if (colliders[i].tag == "Player")
+                if (colliders[i].tag == "Player" && !hit)
+                {
                     colliders[i].gameObject.SendMessage("Hit");
+                    Rigidbody2DExtension.AddExplosionForce(colliders[i].GetComponent<Rigidbody2D>(), hitForce, transform.position, 1, 0.1f);
+                    colliders[i].GetComponent<Rigidbody2D>().AddForce(transform.up * hitForce);
+                    hit = true;
+                }
             }
         }
     }

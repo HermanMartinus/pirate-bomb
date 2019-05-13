@@ -36,48 +36,52 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(Mathf.Abs(player.position.x - transform.position.x) < distance && !seen)
+        DetectPlayer();
+
+        if (!chase) return;
+
+        if (Mathf.Abs(player.position.x - transform.position.x) > 1f)
         {
-            if(Mathf.Abs(player.position.y - transform.position.y) < 1)
+            float h = player.position.x > transform.position.x ? 0.5f : -0.5f;
+            m_Character.Move(h, m_Jump);
+        }
+        else if(Mathf.Abs(player.position.y - transform.position.y) < 1f)
+        {
+            if (attackCooldown < 0)
+            {
+                m_Character.Attack();
+                m_Character.Move(0, m_Jump);
+                attackCooldown = 2f;
+            }
+        }
+        m_Jump = false;
+
+        if (player.position.y - transform.position.y > 0.5f && player.position.x - transform.position.x < 0.3f && jumpCooldown < 0)
+        {
+            m_Jump = true;
+            jumpCooldown = 0.5f;
+        }
+
+        if (Mathf.Abs(player.position.y - transform.position.y) > 2f)
+        {
+            //chase = false;
+            m_Character.Move(0, m_Jump);
+            //seen = false;  
+        }
+
+        attackCooldown -= 1 * 0.02f;
+        jumpCooldown -= 1 * 0.02f;
+
+    }
+
+    void DetectPlayer()
+    {
+        if (Mathf.Abs(player.position.x - transform.position.x) < distance && !seen)
+        {
+            if (Mathf.Abs(player.position.y - transform.position.y) < 1)
             {
                 PlayerSeen();
             }
-        }
-
-        if (chase)
-        {
-            if (Mathf.Abs(player.position.x - transform.position.x) > 1f)
-            {
-                float h = player.position.x > transform.position.x ? 0.5f : -0.5f;
-                // Pass all parameters to the character control script.
-                m_Character.Move(h, m_Jump);
-            }
-            else if(Mathf.Abs(player.position.y - transform.position.y) < 1f)
-            {
-                if (attackCooldown < 0)
-                {
-                    m_Character.Attack();
-                    m_Character.Move(0, m_Jump);
-                    attackCooldown = 2f;
-                }
-            }
-            m_Jump = false;
-
-            if (player.position.y - transform.position.y > 0.5f && player.position.x - transform.position.x < 0.3f && jumpCooldown < 0)
-            {
-                m_Jump = true;
-                jumpCooldown = 0.5f;
-            }
-
-            if (Mathf.Abs(player.position.y - transform.position.y) > 2f)
-            {
-                //chase = false;
-                m_Character.Move(0, m_Jump);
-                //seen = false;  
-            }
-
-            attackCooldown -= 1 * 0.02f;
-            jumpCooldown -= 1 * 0.02f;
         }
     }
 
