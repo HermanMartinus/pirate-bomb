@@ -7,6 +7,7 @@ namespace UnityStandardAssets._2D
     {
         [SerializeField] private float m_MaxSpeed = 10f;                    // The fastest the player can travel in the x axis.
         [SerializeField] private float m_JumpForce = 400f;                  // Amount of force added when the player jumps.
+        [SerializeField] private float m_JumpCooldown = 0.2f;                  // Amount of force added when the player jumps.
         [SerializeField] private bool m_AirControl = false;                 // Whether or not a player can steer while jumping;
         [SerializeField] private LayerMask m_WhatIsGround;                  // A mask determining what is ground to the character
 
@@ -67,6 +68,8 @@ namespace UnityStandardAssets._2D
                 canLand = true;
             }
             prevGrounded = m_Grounded;
+
+            m_JumpCooldown -= 1 * 0.02f;
         }
 
         void OnCollisionEnter2D(Collision2D col)
@@ -118,7 +121,7 @@ namespace UnityStandardAssets._2D
                 }
             }
             // If the player should jump...
-            if (m_Grounded && jump && m_Anim.GetBool("Ground"))
+            if (m_Grounded && jump && m_Anim.GetBool("Ground") && m_JumpCooldown < 0)
             {
                 // Add a vertical force to the player.
                 m_Grounded = false;
@@ -128,6 +131,7 @@ namespace UnityStandardAssets._2D
                 GameObject jumpParticles = Instantiate(particlePrefab);
                 jumpParticles.transform.position = new Vector2(transform.position.x, transform.position.y - 0.26f);
                 jumpParticles.GetComponent<Animator>().SetTrigger("Jump");
+                m_JumpCooldown = 0.2f;
             }
         }
 
@@ -155,7 +159,11 @@ namespace UnityStandardAssets._2D
             if (isPlayer)
                 GetComponent<Platformer2DUserControl>().enabled = false;
             else
+            {
+                GetComponent<Enemy>().RemoveDialog();
                 GetComponent<Enemy>().enabled = false;
+            }
+
             m_Anim.SetBool("Dead", true);
             m_Anim.SetTrigger("Die");
             GetComponent<Collider2D>().sharedMaterial = null;

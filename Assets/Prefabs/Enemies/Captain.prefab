@@ -102,7 +102,7 @@ MonoBehaviour:
   dialogPrefab: {fileID: 6176297869836782330, guid: 56d5d49a83160412f9724922cf237408,
     type: 3}
   distance: 2
-  hitNumber: 2
+  hitNumber: 1
   jumpCooldown: 0.5
   attackCooldown: 1
 --- !u!95 &4396142935391335146

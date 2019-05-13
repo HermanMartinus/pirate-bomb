@@ -84,13 +84,17 @@ public class Enemy : MonoBehaviour
     void PlayerSeen()
     {
         seen = true;
+        if (dialog)
+        {
+            Destroy(dialog);
+        }
         dialog = Instantiate(dialogPrefab);
         Invoke("RemoveDialog", 1);
         dialog.transform.position = new Vector2(transform.position.x + 0.5f, transform.position.y + 0.5f);
         dialog.GetComponent<Animator>().SetTrigger("Interrogation");
     }
 
-    void RemoveDialog()
+    public void RemoveDialog()
     {
         chase = true;
         Destroy(dialog);
@@ -103,7 +107,8 @@ public class Enemy : MonoBehaviour
         {
             m_Character.Die();
         }
-        PlayerSeen();
+        if(!seen)
+            PlayerSeen();
     }
 }
 
