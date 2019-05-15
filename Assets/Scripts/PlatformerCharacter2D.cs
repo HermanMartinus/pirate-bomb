@@ -18,10 +18,11 @@ namespace UnityStandardAssets._2D
         const float k_CeilingRadius = .01f; // Radius of the overlap circle to determine if the player can stand up
         private Animator m_Anim;            // Reference to the player's animator component.
         private Rigidbody2D m_Rigidbody2D;
-        private bool m_FacingRight = true;  // For determining which way the player is currently facing.
+        public bool m_FacingRight = true;  // For determining which way the player is currently facing.
 
         public bool isPlayer = false;
         public float hitForce = 300;
+        public float hitRadius = 1f;
 
         bool isHit = false;
         public GameObject particlePrefab;
@@ -97,15 +98,18 @@ namespace UnityStandardAssets._2D
             }
         }
 
+        Vector2 oldPosition; 
         public void Move(float move, bool jump)
         {
             if (isHit) return;
 
+            var trueVelocity = (new Vector2(transform.position.x, transform.position.y) - new Vector2(oldPosition.x, transform.position.y)).magnitude / Time.fixedDeltaTime;
+            oldPosition = transform.position;
             //only control the player if grounded or airControl is turned on
             if (m_Grounded || m_AirControl)
             {
                 // The Speed animator parameter is set to the absolute value of the horizontal input.
-                m_Anim.SetFloat("Speed", Mathf.Abs(move));
+                m_Anim.SetFloat("Speed", Mathf.Abs(trueVelocity));
 
                 // Move the character
                 m_Rigidbody2D.velocity = new Vector2(move * m_MaxSpeed, m_Rigidbody2D.velocity.y);
@@ -179,15 +183,25 @@ namespace UnityStandardAssets._2D
             this.enabled = false;
         }
 
-        public void Attack()
+        public void Attack(bool bomb=false)
         {
-            m_Anim.SetTrigger("Attack");
-            Invoke("CheckHitPlayer", 0.1f);
+            if(bomb)
+            {
+               m_Anim.SetTrigger("Special");
+                Invoke("CheckHitBomb", 0.2f);
+            }
+            else
+            {
+                m_Anim.SetTrigger("Attack");
+                Invoke("CheckHitPlayer", 0.1f);
+            }
+
+
         }
 
         void CheckHitPlayer()
         {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 0.9f);
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, hitRadius);
 
             bool hit = false;
             for (int i = 0; i < colliders.Length; i++)
@@ -195,8 +209,22 @@ namespace UnityStandardAssets._2D
                 if (colliders[i].tag == "Player" && !hit)
                 {
                     colliders[i].gameObject.SendMessage("Hit");
-                    Rigidbody2DExtension.AddExplosionForce(colliders[i].GetComponent<Rigidbody2D>(), hitForce, transform.position, 1, 0.1f);
-                    colliders[i].GetComponent<Rigidbody2D>().AddForce(transform.up * hitForce);
+                    Rigidbody2DExtension.AddExplosionForce(colliders[i].GetComponent<Rigidbody2D>(), hitForce/2, transform.position, 1, 0.1f);
+                    hit = true;
+                }
+            }
+        }
+
+        void CheckHitBomb()
+        {
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, hitRadius);
+
+            bool hit = false;
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (colliders[i].tag == "Bomb" && !hit)
+                {
+                    Rigidbody2DExtension.AddExplosionForce(colliders[i].GetComponent<Rigidbody2D>(), hitForce, transform.position, 1, 0.05f);
                     hit = true;
                 }
             }

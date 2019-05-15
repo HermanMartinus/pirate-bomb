@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 8005163318538732529}
   - component: {fileID: 8005163318538732528}
   - component: {fileID: 8005163318538732540}
+  - component: {fileID: 8005163318538732541}
   - component: {fileID: 8005163318538732531}
   - component: {fileID: 8005163318538732543}
   - component: {fileID: 8005163318538732538}
   - component: {fileID: 8005163318538732542}
-  - component: {fileID: 8005163318538732541}
   m_Layer: 12
   m_Name: Cucumber
   m_TagString: Untagged
@@ -30,7 +30,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8005163318538732530}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.3308368, y: -1.7183726, z: 0.10783461}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: c84d8d96efc4f474f868dc4023cc7d9a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -103,8 +103,32 @@ MonoBehaviour:
     type: 3}
   distance: 2
   hitNumber: 1
-  jumpCooldown: 0.5
-  attackCooldown: 1
+  pirate: 1
+--- !u!114 &8005163318538732541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005163318538732530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d08f91df3bd212f429df17f53ce2f364, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MaxSpeed: 4
+  m_JumpForce: 420
+  m_JumpCooldown: 0.2
+  m_AirControl: 1
+  m_WhatIsGround:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_FacingRight: 1
+  isPlayer: 0
+  hitForce: 100
+  hitRadius: 0.7
+  particlePrefab: {fileID: 2570846511258879258, guid: bddb661dcf93a47a0ade95723b4dee57,
+    type: 3}
 --- !u!95 &8005163318538732531
 Animator:
   serializedVersion: 3
@@ -187,29 +211,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &8005163318538732541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8005163318538732530}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d08f91df3bd212f429df17f53ce2f364, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MaxSpeed: 4
-  m_JumpForce: 420
-  m_JumpCooldown: 0.2
-  m_AirControl: 1
-  m_WhatIsGround:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  isPlayer: 0
-  hitForce: 180
-  particlePrefab: {fileID: 2570846511258879258, guid: bddb661dcf93a47a0ade95723b4dee57,
-    type: 3}
 --- !u!1 &8005163319704088118
 GameObject:
   m_ObjectHideFlags: 0

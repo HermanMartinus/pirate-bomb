@@ -9,8 +9,10 @@ public class Bomb : MonoBehaviour {
     public float uplift = 0.1f;
 
     public float damageRadius = 2;
+
     public LayerMask whoIsEffected;
 
+    public bool lit = true;
     static float shakeDuration = 0f;
 
     private float shakeMagnitude = 0.5f;
@@ -27,13 +29,16 @@ public class Bomb : MonoBehaviour {
     IEnumerator Explode() {
 
         yield return new WaitForSeconds(3);
-        GetComponent<Animator>().SetTrigger("Explode");
-        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
-        ExplosiveForce();
-        shakeDuration = 0.2f;
-        CheckDamage();
-        yield return new WaitForSeconds(0.7f);
-        Destroy(gameObject);
+        if (lit)
+        {
+            GetComponent<Animator>().SetTrigger("Explode");
+            GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+            ExplosiveForce();
+            shakeDuration = 0.2f;
+            CheckDamage();
+            yield return new WaitForSeconds(0.7f);
+            Destroy(gameObject);
+        }
     }
 
     void ExplosiveForce() {
@@ -64,6 +69,28 @@ public class Bomb : MonoBehaviour {
             }
             hitPrev.Add(colliders[i].gameObject);
         }
+    }
+
+    public void BlowOut()
+    {
+        StartCoroutine(WaitAndBlowOut());
+    }
+
+    IEnumerator WaitAndBlowOut()
+    {
+        yield return new WaitForSeconds(0.6f);
+        GetComponent<Animator>().SetTrigger("TurnedOff");
+        lit = false;
+    }
+
+    public void Eat()
+    {
+        Invoke("GetEaten", 0.8f);
+    }
+
+    void GetEaten()
+    {
+        Destroy(gameObject);
     }
 
     void Update()

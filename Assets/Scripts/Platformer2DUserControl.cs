@@ -30,7 +30,6 @@ namespace UnityStandardAssets._2D
                 GameObject bomb = Instantiate(bombPrefab);
                 bomb.transform.position = transform.position;
                 //bomb.GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity;
-                Debug.Log("Dropped bomb");
             }
         }
 
